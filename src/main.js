@@ -16,24 +16,20 @@ const KIDS_STORAGE_KEY = 'kids_tasks_v1';
 let kidsTasks = {};
 
 async function fetchDefaults() {
-    // Try common server paths first
-    const paths = ['../tasks.json', '/tasks.json', 'tasks.json'];
-    for (const p of paths) {
-        try {
-            const r = await fetch(p);
-            if (r.ok) return await r.json();
-        } catch (e) {
-            // ignore
-        }
+    // Prefer the public root path. On Vercel/public hosts this will be available at /tasks.json
+    try {
+        const r = await fetch('/tasks.json');
+        if (r.ok) return await r.json();
+    } catch (e) {
+        // ignore
     }
-    // Try embedded JSON in the HTML (for file:// or non-server usage)
+    // Try embedded JSON in the HTML
     try {
         const el = document.getElementById('embedded-tasks');
         if (el) return JSON.parse(el.textContent);
     } catch (e) {
         // ignore
     }
-    // Last-resort minimal defaults
     return { defaults: { daily: [], weeklyFixed: [], weeklyCycles: {1:{focus:'',tasks:[]},2:{focus:'',tasks:[]},3:{focus:'',tasks:[]},4:{focus:'',tasks:[]}}, periodic: [], projects: [], projectQueueIdx: 0 }, kidsDefaults: { carmelOnetime:[], carmelDaily:[], carmelWeekly:[], saarOnetime:[], saarDaily:[], saarWeekly:[] } };
 }
 
